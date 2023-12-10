@@ -1,112 +1,95 @@
 package exercise14;
-
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Ushtrimi14 {
-    private static Map<Integer, Integer> repeatedElements = new HashMap<Integer, Integer>();
-    private static Integer[] myArray = new Integer[100];
+    private static Integer[] myArray = new Integer[10];
     private static Random random = new Random();
-    private static Integer bound = 30;
-    private static ArrayList<Integer> duplicateArrayList = new ArrayList<>();
+    private static Integer bound = 3;
 
     public static void main(String[] args) {
-        fillRetunUniqeNrOnMyArray();
-        System.out.println(duplicateNumbers(myArray));
-
-
-        System.out.println("25 mmost frequent");
-        System.out.println(Arrays.toString(kMostFrequent(myArray, 25)));
-
+        populateArray();
+        System.out.println("List of unique elements:");
+        listOfUniqueElements();
+        System.out.println("Elements repeated at least once:");
+        findDuplicates();
+        System.out.println("25 most frequent elements:");
+        kMostFrequent(25);
+        System.out.println("Deduplicate items:");
+        deduplicateItems();
 
     }
 
-    public static Set<Integer> fillRetunUniqeNrOnMyArray() {
-        Set<Integer> myUniqueElements = new HashSet<>();
-        //mbushim arrayin
+    private static void deduplicateItems() {
+        Set<Integer> uniqueSet = new HashSet<>();
+        for (int i = 0; i < myArray.length; i++) {
+            if (!uniqueSet.add(myArray[i])) {
+                myArray[i] = getRandomUniqueElement(uniqueSet);
+            }
+        }
+
+        Arrays.asList(myArray).forEach(System.out::println);
+    }
+
+    private static int getRandomUniqueElement(Set<Integer> uniqueSet) {
+        int replacement;
+        do {
+            replacement = random.nextInt(bound);
+        } while (uniqueSet.contains(replacement));
+        return replacement;
+    }
+
+    public static void populateArray() {
         for (int i = 0; i < myArray.length; i++) {
             myArray[i] = random.nextInt(bound);
-            //kopjojm vlerat unike ne set
-            myUniqueElements.add(myArray[i]);
         }
-        //kalojm vlerat dupplicate ne nje map
-        for (int i = 0; i < myArray.length; i++) {
-            Integer key = myArray[i];
-            if (repeatedElements.containsKey(key)) {
-                Integer value = repeatedElements.get(key);
-                repeatedElements.put(key, value + 1);
-            } else repeatedElements.put(key, 1);
-        }
-
-        System.out.println("Array me vlera random");
-        System.out.println(Arrays.toString(myArray));
-        System.out.println("reapeted elements");
-        System.out.println(repeatedElements);
-
-        System.out.println("unique elements");
-        System.out.println(myUniqueElements);
-
-        return myUniqueElements;
     }
 
-    public static int[] kMostFrequent(Integer[] nums, int k) {
-        Map<Integer, Integer> countMap = new HashMap<>();
+    public static void listOfUniqueElements() {
+        Set<Integer> uniqueElements = new HashSet<>(Arrays.asList(myArray));
+        uniqueElements.forEach(System.out::println);
+    }
 
-        //Variable  for maximum frequency of any number
-        int maxFreq = 0;
+    public static void findDuplicates() {
+        Map<Integer, Long> frequencyMap = Arrays.stream(myArray)
+                .collect(Collectors.groupingBy(n -> n, Collectors.counting()));
+        Map<Integer, Long> frequency = new HashMap<>();
+        for (int i = 0; i< myArray.length; i++){
+            if(frequency.containsKey(myArray[i])){
+                Long value = frequency.get(myArray[i]);
+                value += 1L;
 
-        for (int i = 0; i < nums.length; i++) {
-
-            int freq = countMap.getOrDefault(nums[i], 0) + 1;
-
-            countMap.put(nums[i], freq);
-
-            maxFreq = Math.max(maxFreq, freq);
-        }
-        List<Integer>[] bucket = new ArrayList[maxFreq + 1];
-
-        for (int n : countMap.keySet()) {
-            int freq = countMap.get(n);
-
-            if (bucket[freq] == null)
-                bucket[freq] = new ArrayList<>();
-
-            bucket[freq].add(n);
-        }
-        int[] resultArr = new int[k];
-        int count = 0;
-
-        for (int i = bucket.length - 1; i >= 0; i--) {
-            if (bucket[i] != null) {
-                for (int n : bucket[i]) {
-                    resultArr[count++] = n;
-                    if (count == k)
-                        return resultArr;
-                }
+                frequency.put(myArray[i], value);
+            } else {
+                frequency.put(myArray[i], 0L);
             }
         }
-        return resultArr;
-    }
+        frequencyMap.entrySet().stream()
+                .filter(entry -> entry.getValue() > 1)
+                .forEach(entry -> System.out.println(entry.getKey() + " " + entry.getValue()));
 
-
-    public static ArrayList<Integer> duplicateNumbers(Integer[] myArray) {
-        ArrayList<Integer> trash = new ArrayList<>();
-        for (int i = 0; i < myArray.length; i++) {
-            duplicateArrayList.add(myArray[i]);
-            duplicateArrayList.add(myArray[i]);
-        }
-        System.out.println("duplikimi listes");
-        System.out.println(duplicateArrayList);
-
-        for (int i = 0; i < duplicateArrayList.size(); i++) {
-            if (duplicateArrayList.contains(duplicateArrayList.get(i))) {
-                Integer replacedNr = duplicateArrayList.get(i);
-                duplicateArrayList.set(replacedNr, random.nextInt(bound));
+        for (Map.Entry<Integer, Long> pair : frequencyMap.entrySet()){
+            if(pair.getValue() > 1) {
+                System.out.println(pair);
             }
         }
-        System.out.println("trying to replace duplicate with random nr");
-
-        return duplicateArrayList;
     }
 
+    public static void kMostFrequent(int k) {
+        Map<Integer, Long> frequencyMap = Arrays.stream(myArray)
+                .collect(Collectors.groupingBy(n -> n, Collectors.counting()));
 
+        frequencyMap.entrySet().stream()
+                .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+                .limit(k)
+                .forEach(entry -> System.out.println(entry.getKey() + " " + entry.getValue()));
+
+        int i =1;
+        for (Map.Entry<Integer, Long> pair : frequencyMap.entrySet()){
+            if(i <= 25) {
+                System.out.println(pair);
+                i++;
+            }
+        }
+    }
 }

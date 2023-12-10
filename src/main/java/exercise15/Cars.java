@@ -1,6 +1,5 @@
 package exercise15;
 
-import exercise12_13.Car;
 
 public enum Cars {
     BMW( 720, Brands.BMW),
@@ -28,7 +27,7 @@ public enum Cars {
         return true;
     }
 
-    public boolean isFaster(Car car){
+    public boolean isFaster(Cars car){
         Integer count = 0;
         if(car.getPower() > BMW.power){
             System.out.println("BMW eshte me e vogel ne motorr se makina juaj");

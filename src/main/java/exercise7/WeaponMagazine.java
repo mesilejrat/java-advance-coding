@@ -18,20 +18,16 @@ public class WeaponMagazine {
         this.magazineSize = magazineSize;
     }
     public boolean isLoaded(){
-        System.out.println(bulletAmount);
-       if (bulletAmount > 0) {
-           return true;
-       }
-         return false;
+     return loaded;
     }
 
     public void loadBullet(String amount) {
-        if (magazineSize < Integer.parseInt(amount)) {
+        if (bulletAmount + Integer.parseInt(amount) > magazineSize) {
             System.out.println("cannot load, bullets exceed magazine size");
-           // bulletAmount = Integer.parseInt(amount) - magazineSize;
-        } else {
-            bulletAmount += Integer.parseInt(amount);
+            return;
         }
+        loaded = true;
+        bulletAmount += Integer.parseInt(amount);
     }
 
     public void shoot() {
